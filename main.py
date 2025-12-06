@@ -46,7 +46,21 @@ def build_loaders(
     train_set, val_set, test_set = random_split(dataset, [train_len, val_len, test_len], generator=generator)
 
     # Compute class counts for weighting without loading frames
-    labels = np.array(dataset.labels)
+    if hasattr(dataset, "labels"):
+        labels_source = dataset.labels
+    elif hasattr(dataset, "get_labels") and callable(getattr(dataset, "get_labels")):
+        labels_source = dataset.get_labels()
+    else:
+        raise AttributeError(
+            "Dataset must expose labels via a 'labels' attribute or a 'get_labels()' method "
+            "to compute split statistics. Ensure labels are populated before calling build_loaders."
+        )
+    if labels_source is None:
+        raise ValueError(
+            "Dataset labels are missing. Provide labels via the 'labels' attribute or ensure "
+            "'get_labels()' returns a non-empty sequence before calling build_loaders."
+        )
+    labels = np.array(labels_source)
     class_counts = _count_classes(train_set.indices, labels, len(dataset.class_map))
     class_weights = None
     sampler = None
