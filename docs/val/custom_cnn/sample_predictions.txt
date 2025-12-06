@@ -1,0 +1,59 @@
+---
+model_name: custom_cnn
+model_version: not-specified
+evaluation_date: 2025-12-06
+dataset_name: Violent Flow + Avenue (proxy Panic)
+dataset_version: unspecified
+data_split: validation
+overall_metrics:
+  accuracy: 0.7027
+  precision_weighted: 0.7145
+  recall_weighted: 0.7027
+  f1_weighted: 0.7006
+class_metrics:
+split_details:
+  seed: 42
+  total_dataset_size: 188
+  split_name: validation
+  split_size: 37
+  split_class_counts: [15, 18, 4]
+  - class: Normal
+    precision: 0.6923
+    recall: 0.6000
+    f1: 0.6429
+    support: 15
+  - class: Violent
+    precision: 0.7647
+    recall: 0.7222
+    f1: 0.7429
+    support: 18
+  - class: Panic
+    precision: 0.5714
+    recall: 1.0000
+    f1: 0.7273
+    support: 4
+purpose_audience: >
+  Sample predictions for quick qualitative review and sharing with stakeholders.
+---
+Sample Predictions:
+===================
+Sample 5: Actual=Normal, Predicted=Normal [CORRECT]
+Sample 13: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 12: Actual=Violent, Predicted=Normal [WRONG]
+Sample 19: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 11: Actual=Normal, Predicted=Panic [WRONG]
+Sample 4: Actual=Normal, Predicted=Normal [CORRECT]
+Sample 3: Actual=Normal, Predicted=Normal [CORRECT]
+Sample 29: Actual=Violent, Predicted=Panic [WRONG]
+Sample 18: Actual=Normal, Predicted=Normal [CORRECT]
+Sample 34: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 28: Actual=Normal, Predicted=Normal [CORRECT]
+Sample 20: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 35: Actual=Normal, Predicted=Violent [WRONG]
+Sample 33: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 32: Actual=Normal, Predicted=Normal [CORRECT]
+Sample 31: Actual=Normal, Predicted=Violent [WRONG]
+Sample 25: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 6: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 15: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 10: Actual=Panic, Predicted=Panic [CORRECT]

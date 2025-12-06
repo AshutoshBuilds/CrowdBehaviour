@@ -1,0 +1,17 @@
+Accuracy: 0.7027
+Precision (Weighted): 0.7145
+Recall (Weighted): 0.7027
+F1-Score (Weighted): 0.7006
+Loss: 0.5550
+
+Split details:
+Split name: validation
+Split size: 37
+Class counts: [15, 18, 4]
+Seed: 42
+Total dataset size: 188
+
+Per-class metrics (Precision, Recall, F1, Support):
+Normal: P=0.6923, R=0.6000, F1=0.6429, Support=15
+Violent: P=0.7647, R=0.7222, F1=0.7429, Support=18
+Panic: P=0.5714, R=1.0000, F1=0.7273, Support=4

@@ -1,0 +1,59 @@
+---
+model_name: densenet121
+model_version: not-specified
+evaluation_date: 2025-12-06
+dataset_name: Violent Flow + Avenue (proxy Panic)
+dataset_version: unspecified
+data_split: validation
+overall_metrics:
+  accuracy: 0.8108
+  precision_weighted: 0.8128
+  recall_weighted: 0.8108
+  f1_weighted: 0.8112
+class_metrics:
+split_details:
+  seed: 42
+  total_dataset_size: 188
+  split_name: validation
+  split_size: 37
+  split_class_counts: [15, 18, 4]
+  - class: Normal
+    precision: 0.7500
+    recall: 0.8000
+    f1: 0.7742
+    support: 15
+  - class: Violent
+    precision: 0.8235
+    recall: 0.7778
+    f1: 0.8000
+    support: 18
+  - class: Panic
+    precision: 1.0000
+    recall: 1.0000
+    f1: 1.0000
+    support: 4
+purpose_audience: >
+  Sample predictions for quick qualitative review and sharing with stakeholders.
+---
+Sample Predictions:
+===================
+Sample 34: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 6: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 28: Actual=Normal, Predicted=Normal [CORRECT]
+Sample 14: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 13: Actual=Violent, Predicted=Normal [WRONG]
+Sample 7: Actual=Normal, Predicted=Normal [CORRECT]
+Sample 20: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 12: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 9: Actual=Panic, Predicted=Panic [CORRECT]
+Sample 29: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 2: Actual=Panic, Predicted=Panic [CORRECT]
+Sample 21: Actual=Panic, Predicted=Panic [CORRECT]
+Sample 36: Actual=Violent, Predicted=Normal [WRONG]
+Sample 11: Actual=Normal, Predicted=Normal [CORRECT]
+Sample 8: Actual=Normal, Predicted=Normal [CORRECT]
+Sample 0: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 17: Actual=Violent, Predicted=Normal [WRONG]
+Sample 15: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 27: Actual=Normal, Predicted=Normal [CORRECT]
+Sample 24: Actual=Normal, Predicted=Violent [WRONG]

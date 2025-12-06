@@ -1,0 +1,73 @@
+---
+model_name: mobilenet_v3_large
+model_version: not-specified
+evaluation_date: 2025-12-06
+dataset_name: Violent Flow + Avenue (proxy Panic)
+dataset_version: unspecified
+data_split: test
+overall_metrics:
+  accuracy: 0.9459
+  precision_weighted: 0.9459
+  recall_weighted: 0.9459
+  f1_weighted: 0.9459
+class_metrics:
+split_details:
+  seed: 42
+  total_dataset_size: 188
+  split_name: test
+  split_size: 37
+  split_class_counts: [11, 19, 7]
+overall_metrics_ci:
+  accuracy_95_ci: [0.8649, 1.0000]
+  precision_weighted_95_ci: [0.8635, 1.0000]
+  recall_weighted_95_ci: [0.8649, 1.0000]
+  f1_weighted_95_ci: [0.8634, 1.0000]
+  - class: Normal
+    precision: 0.9091
+    recall: 0.9091
+    f1: 0.9091
+    support: 11
+    precision_95_ci: [0.7500, 1.0000]
+    recall_95_ci: [0.7273, 1.0000]
+    f1_95_ci: [0.7619, 1.0000]
+  - class: Violent
+    precision: 0.9474
+    recall: 0.9474
+    f1: 0.9474
+    support: 19
+    precision_95_ci: [0.8500, 1.0000]
+    recall_95_ci: [0.8421, 1.0000]
+    f1_95_ci: [0.8649, 1.0000]
+  - class: Panic
+    precision: 1.0000
+    recall: 1.0000
+    f1: 1.0000
+    support: 7
+    precision_95_ci: [1.0000, 1.0000]
+    recall_95_ci: [1.0000, 1.0000]
+    f1_95_ci: [1.0000, 1.0000]
+purpose_audience: >
+  Sample predictions for quick qualitative review and sharing with stakeholders.
+---
+Sample Predictions:
+===================
+Sample 25: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 1: Actual=Normal, Predicted=Normal [CORRECT]
+Sample 10: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 21: Actual=Normal, Predicted=Normal [CORRECT]
+Sample 9: Actual=Panic, Predicted=Panic [CORRECT]
+Sample 32: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 34: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 6: Actual=Normal, Predicted=Violent [WRONG]
+Sample 24: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 19: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 17: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 35: Actual=Panic, Predicted=Panic [CORRECT]
+Sample 28: Actual=Panic, Predicted=Panic [CORRECT]
+Sample 12: Actual=Violent, Predicted=Normal [WRONG]
+Sample 7: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 30: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 8: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 23: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 5: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 13: Actual=Violent, Predicted=Violent [CORRECT]

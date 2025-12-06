@@ -1,0 +1,73 @@
+---
+model_name: custom_cnn
+model_version: not-specified
+evaluation_date: 2025-12-06
+dataset_name: Violent Flow + Avenue (proxy Panic)
+dataset_version: unspecified
+data_split: test
+overall_metrics:
+  accuracy: 0.8649
+  precision_weighted: 0.8695
+  recall_weighted: 0.8649
+  f1_weighted: 0.8591
+class_metrics:
+split_details:
+  seed: 42
+  total_dataset_size: 188
+  split_name: test
+  split_size: 37
+  split_class_counts: [11, 19, 7]
+overall_metrics_ci:
+  accuracy_95_ci: [0.7568, 0.9601]
+  precision_weighted_95_ci: [0.7590, 0.9633]
+  recall_weighted_95_ci: [0.7568, 0.9601]
+  f1_weighted_95_ci: [0.7378, 0.9600]
+  - class: Normal
+    precision: 0.8750
+    recall: 0.6364
+    f1: 0.7368
+    support: 11
+    precision_95_ci: [0.6667, 1.0000]
+    recall_95_ci: [0.3636, 0.9091]
+    f1_95_ci: [0.5000, 0.9318]
+  - class: Violent
+    precision: 0.8182
+    recall: 0.9474
+    f1: 0.8780
+    support: 19
+    precision_95_ci: [0.7143, 0.9487]
+    recall_95_ci: [0.8421, 1.0000]
+    f1_95_ci: [0.7907, 0.9621]
+  - class: Panic
+    precision: 1.0000
+    recall: 1.0000
+    f1: 1.0000
+    support: 7
+    precision_95_ci: [1.0000, 1.0000]
+    recall_95_ci: [1.0000, 1.0000]
+    f1_95_ci: [1.0000, 1.0000]
+purpose_audience: >
+  Sample predictions for quick qualitative review and sharing with stakeholders.
+---
+Sample Predictions:
+===================
+Sample 32: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 30: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 15: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 20: Actual=Normal, Predicted=Violent [WRONG]
+Sample 2: Actual=Normal, Predicted=Normal [CORRECT]
+Sample 8: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 17: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 23: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 3: Actual=Panic, Predicted=Panic [CORRECT]
+Sample 6: Actual=Normal, Predicted=Normal [CORRECT]
+Sample 36: Actual=Normal, Predicted=Violent [WRONG]
+Sample 12: Actual=Violent, Predicted=Normal [WRONG]
+Sample 35: Actual=Panic, Predicted=Panic [CORRECT]
+Sample 29: Actual=Panic, Predicted=Panic [CORRECT]
+Sample 7: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 0: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 4: Actual=Normal, Predicted=Normal [CORRECT]
+Sample 10: Actual=Violent, Predicted=Violent [CORRECT]
+Sample 33: Actual=Normal, Predicted=Normal [CORRECT]
+Sample 5: Actual=Violent, Predicted=Violent [CORRECT]

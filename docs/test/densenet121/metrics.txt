@@ -1,0 +1,17 @@
+Accuracy: 0.9459 (95% CI: 0.8649-1.0000)
+Precision (Weighted): 0.9459 (95% CI: 0.8686-1.0000)
+Recall (Weighted): 0.9459 (95% CI: 0.8649-1.0000)
+F1-Score (Weighted): 0.9459 (95% CI: 0.8634-1.0000)
+Loss: 0.3682
+
+Split details:
+Split name: test
+Split size: 37
+Class counts: [11, 19, 7]
+Seed: 42
+Total dataset size: 188
+
+Per-class metrics (Precision, Recall, F1, Support):
+Normal: P=0.9091, R=0.9091, F1=0.9091, Support=11 | P 95% CI: 0.7692-1.0000, R 95% CI: 0.7273-1.0000, F1 95% CI: 0.7619-1.0000
+Violent: P=0.9474, R=0.9474, F1=0.9474, Support=19 | P 95% CI: 0.8500-1.0000, R 95% CI: 0.8421-1.0000, F1 95% CI: 0.8649-1.0000
+Panic: P=1.0000, R=1.0000, F1=1.0000, Support=7 | P 95% CI: 1.0000-1.0000, R 95% CI: 1.0000-1.0000, F1 95% CI: 1.0000-1.0000
