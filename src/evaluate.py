@@ -29,12 +29,37 @@ def _percentile_ci(values, alpha=0.05):
     return tuple(np.percentile(values, [lower, upper]))
 
 
-def _bootstrap_cis(labels, preds, n_classes, iters=200, alpha=0.05, random_state=42):
+def _stratified_bootstrap_indices(labels, rng):
+    """
+    Generate bootstrap indices while preserving class proportions.
+    Keeps each class frequency constant per resample to avoid collapsing
+    minority classes (helps CI stability on tiny splits).
+    """
+    labels = np.asarray(labels)
+    unique_classes, counts = np.unique(labels, return_counts=True)
+    bootstrap_idxs = []
+    for cls, count in zip(unique_classes, counts):
+        cls_idxs = np.where(labels == cls)[0]
+        if len(cls_idxs) == 0:
+            continue
+        bootstrap_idxs.append(rng.choice(cls_idxs, size=count, replace=True))
+    if not bootstrap_idxs:
+        return np.array([], dtype=int)
+    return np.concatenate(bootstrap_idxs)
+
+
+def _bootstrap_cis(
+    labels, preds, n_classes, iters=200, alpha=0.05, random_state=42, stratified=True
+):
     """
     Bootstrap confidence intervals for overall and per-class metrics.
     labels/preds must be numpy arrays.
+    stratified=True keeps per-class counts fixed each draw to stabilize CIs
+    when supports are small.
     """
     rng = np.random.default_rng(random_state)
+    labels = np.asarray(labels)
+    preds = np.asarray(preds)
     n = len(labels)
     if n == 0 or iters <= 0:
         return None
@@ -48,7 +73,12 @@ def _bootstrap_cis(labels, preds, n_classes, iters=200, alpha=0.05, random_state
     }
 
     for _ in range(iters):
-        idx = rng.integers(0, n, size=n)
+        if stratified:
+            idx = _stratified_bootstrap_indices(labels, rng)
+            if len(idx) == 0:
+                continue
+        else:
+            idx = rng.integers(0, n, size=n)
         lbl = labels[idx]
         prd = preds[idx]
 
@@ -110,8 +140,10 @@ def evaluate_model(
     purpose_audience="Sample predictions for qualitative review and sharing with stakeholders.",
     bootstrap_iters=0,
     ci_alpha=0.05,
+    bootstrap_stratified=True,
     return_details=False,
     random_state=42,
+    split_meta=None,
 ):
     if len(loader.dataset) == 0:
         print(f"{Fore.RED}Dataset is empty. Cannot evaluate.")
@@ -126,7 +158,13 @@ def evaluate_model(
     total_loss = 0.0
     criterion = torch.nn.CrossEntropyLoss()
 
-    print(f"{Fore.CYAN}Starting evaluation...")
+    split_label = split_meta.get("split_name") if split_meta else split_name
+    print(f"{Fore.CYAN}Starting evaluation... Split={split_label or 'unspecified'}")
+    if split_meta:
+        print(
+            f"{Fore.CYAN}Split size: {split_meta.get('size', len(loader.dataset))} | "
+            f"Class counts: {split_meta.get('class_counts', 'n/a')} | Seed: {split_meta.get('seed', random_state)}"
+        )
 
     with torch.no_grad():
         for inputs, labels in loader:
@@ -166,6 +204,7 @@ def evaluate_model(
             iters=bootstrap_iters,
             alpha=ci_alpha,
             random_state=random_state,
+            stratified=bootstrap_stratified,
         )
 
     print(f"{Fore.GREEN}Evaluation Results:")
@@ -300,6 +339,17 @@ def evaluate_model(
         f"  f1_weighted: {f1:.4f}",
         "class_metrics:",
     ]
+    if split_meta:
+        metadata_lines.extend(
+            [
+                "split_details:",
+                f"  seed: {split_meta.get('seed', random_state)}",
+                f"  total_dataset_size: {split_meta.get('total_samples', 'n/a')}",
+                f"  split_name: {split_label or split_value}",
+                f"  split_size: {split_meta.get('size', len(loader.dataset))}",
+                f"  split_class_counts: {split_meta.get('class_counts', 'n/a')}",
+            ]
+        )
 
     if ci:
         metadata_lines.extend(
@@ -364,6 +414,13 @@ def evaluate_model(
         f.write(rec_line + "\n")
         f.write(f1_line + "\n")
         f.write(f"Loss: {average_loss:.4f}\n")
+        if split_meta:
+            f.write("\nSplit details:\n")
+            f.write(f"Split name: {split_label or split_value}\n")
+            f.write(f"Split size: {split_meta.get('size', len(loader.dataset))}\n")
+            f.write(f"Class counts: {split_meta.get('class_counts', 'n/a')}\n")
+            f.write(f"Seed: {split_meta.get('seed', random_state)}\n")
+            f.write(f"Total dataset size: {split_meta.get('total_samples', 'n/a')}\n")
         if class_names:
             f.write("\nPer-class metrics (Precision, Recall, F1, Support):\n")
             for i, cls in enumerate(class_names):
