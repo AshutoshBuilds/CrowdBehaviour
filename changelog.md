@@ -5,3 +5,4 @@ IST 06-Dec-2025 17:35:10 - Auto-generate metadata headers for sample predictions
 
 IST 06-Dec-2025 17:43:22 - Re-evaluated val/test metrics with bootstrap CIs; updated docs metrics and plots.
 IST 06-Dec-2025 17:45:05 - Deduplicated dataset globbing, re-ran val/test with bootstrap CIs; Panic support remains low (val n=2, test n=6).
+IST 06-Dec-2025 17:53:27 - Ensured .cursor/mcp.json exists and reused n_classes when deriving resolved class names in evaluation.

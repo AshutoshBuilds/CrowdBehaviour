@@ -176,7 +176,7 @@ def evaluate_model(
     print(f"Loss: {average_loss:.4f}")
 
     # Derive metadata helpers for downstream logging/saving.
-    resolved_class_names = class_names or [f"Class {i}" for i in range(len(per_class[0]))]
+    resolved_class_names = class_names or [f"Class {i}" for i in range(n_classes)]
     split_value = split_name or os.path.basename(os.path.dirname(output_dir)) or "unspecified"
     evaluation_date = datetime.now().strftime("%Y-%m-%d")
 
