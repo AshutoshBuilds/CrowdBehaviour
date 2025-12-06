@@ -122,6 +122,9 @@ def main():
 
     num_classes = len(root_dirs)
     class_names = list(root_dirs.keys())
+    dataset_name = "Violent Flow + Avenue (proxy Panic)"
+    dataset_version = "unspecified"
+    purpose_note = "Sample predictions for quick qualitative review and sharing with stakeholders."
     print(f"{Fore.GREEN}Classes: {class_names}")
 
     # DataLoaders with splits
@@ -179,6 +182,12 @@ def main():
             device=DEVICE,
             class_names=class_names,
             output_dir=val_dir,
+            model_name=model_name,
+            model_version="not-specified",
+            dataset_name=dataset_name,
+            dataset_version=dataset_version,
+            split_name="validation",
+            purpose_audience=purpose_note,
         )
 
         print(f"{Fore.CYAN}Evaluating {model_name} on test set...")
@@ -189,6 +198,12 @@ def main():
             device=DEVICE,
             class_names=class_names,
             output_dir=test_dir,
+            model_name=model_name,
+            model_version="not-specified",
+            dataset_name=dataset_name,
+            dataset_version=dataset_version,
+            split_name="test",
+            purpose_audience=purpose_note,
         )
 
         if val_metrics:
