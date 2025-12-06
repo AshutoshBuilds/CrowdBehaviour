@@ -13,7 +13,7 @@ init(autoreset=True)
 
 def load_model(checkpoint_path, num_classes, device):
     model = CNNLSTM(num_classes=num_classes)
-    state_dict = torch.load(checkpoint_path, map_location=device)
+    state_dict = torch.load(checkpoint_path, map_location=device, weights_only=True)
     model.load_state_dict(state_dict)
     model.to(device)
     model.eval()

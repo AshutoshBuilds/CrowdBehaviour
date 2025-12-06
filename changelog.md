@@ -9,3 +9,5 @@ IST 06-Dec-2025 17:53:27 - Ensured .cursor/mcp.json exists and reused n_classes 
 IST 06-Dec-2025 18:17:38 - Hardened eval splits (seed/logging), enabled stratified test-set bootstrap CIs, surfaced split sizes in artifacts, and raised default val/test ratios for better reliability.
 IST 06-Dec-2025 18:27:51 - Guarded dataset label retrieval in build_loaders with get_labels fallback and clearer errors for missing labels.
 IST 06-Dec-2025 18:33:59 - Forced Torch weight downloads into project-root models/ directory (via TORCH_HOME) and documented the new cache location.
+IST 06-Dec-2025 18:48:52 - Resolved torch amp FutureWarnings (GradScaler/autocast) and set torch.load to weights_only=True for safer state dict loading.
+IST 06-Dec-2025 18:50:55 - Fixed GradScaler init for current torch version (removed unsupported device_type kwarg).

@@ -30,7 +30,8 @@ def train_model(
     scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=scheduler_step, gamma=scheduler_gamma)
 
     model = model.to(device)
-    scaler = torch.cuda.amp.GradScaler(enabled=use_amp and device.startswith("cuda"))
+    device_type = device.split(":")[0] if isinstance(device, str) else "cuda"
+    scaler = torch.amp.GradScaler(enabled=use_amp and device_type == "cuda")
 
     best_val_acc = 0.0
     best_val_f1 = 0.0
@@ -53,7 +54,7 @@ def train_model(
 
             optimizer.zero_grad()
 
-            with torch.cuda.amp.autocast(enabled=use_amp and device.startswith("cuda")):
+            with torch.amp.autocast(device_type=device_type, enabled=use_amp and device_type == "cuda"):
                 outputs = model(inputs)
                 loss = criterion(outputs, labels)
 

@@ -281,7 +281,9 @@ def main():
 
         # Reload best checkpoint before evaluation to ensure best weights are used.
         if os.path.exists(checkpoint_path):
-            trained_model.load_state_dict(torch.load(checkpoint_path, map_location=DEVICE))
+            trained_model.load_state_dict(
+                torch.load(checkpoint_path, map_location=DEVICE, weights_only=True)
+            )
 
         # Evaluate on validation/test with per-model subfolders
         val_dir = os.path.join(args.output_dir, "val", model_name)
