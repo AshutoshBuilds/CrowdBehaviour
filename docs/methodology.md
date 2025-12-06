@@ -1,6 +1,6 @@
 # Crowd Behavior Analysis System
 
-This project implements an automated system for multi-label classification of crowd behavior into three categories: **Normal**, **Violent**, and **Panic**. It utilizes deep learning techniques (CNN-LSTM) to analyze video sequences and detect abnormal events.
+This project implements an automated system for multi-class classification of crowd behavior into three categories: **Normal**, **Violent**, and **Panic**. It utilizes deep learning techniques (CNN-LSTM) to analyze video sequences and detect abnormal events.
 
 ## 1. Methodology
 
@@ -31,10 +31,13 @@ We employ a hybrid architecture that leverages the strengths of Convolutional Ne
 
 ### 1.3 Training Pipeline
 *   **Preprocessing**: Videos are resized to 224x224 pixels. We extract fixed-length sequences of 16 frames.
-*   **Augmentation**: Basic normalization is applied.
-*   **Optimizer**: Adam optimizer (Learning Rate: 1e-4) is used for stable convergence.
-*   **Loss Function**: CrossEntropyLoss is used, suitable for multi-class classification.
-*   **Epochs**: The model is trained for 15 epochs to ensure sufficient learning without overfitting.
+*   **Normalization**: ImageNet mean/std applied per frame to align with ResNet50 pretraining.
+*   **Splits**: Train / Val / Test with fixed seed (default 70/15/15).
+*   **Class balancing**: Optional weighted sampler on the training split.
+*   **Optimizer / Loss**: Adam (LR=1e-4) with CrossEntropyLoss.
+*   **Scheduler**: StepLR (gamma=0.5 every 5 epochs).
+*   **Mixed Precision**: Enabled on CUDA for speed (can be disabled).
+*   **Epochs**: Defaults to 15 (configurable in `main.py`).
 
 ## 2. Usage
 
@@ -62,20 +65,31 @@ python main.py
 ```
 This will:
 1.  Load and process the datasets.
-2.  Train the CNN-LSTM model.
-3.  Evaluate on a validation set.
-4.  Generate and save visualization results in the `docs/` folder.
+2.  Train the CNN-LSTM model with train/val splits (weighted sampler optional).
+3.  Evaluate on validation and test splits.
+4.  Generate and save visualization results under `docs/val/` and `docs/test/`.
 
 ## 3. Results & Visualization
-All results are saved in the `docs/` directory:
+Key outputs are saved in `docs/val/` and `docs/test/`:
 
-*   **`confusion_matrix.png`**: A heatmap showing True vs. Predicted labels to visualize misclassifications.
-*   **`roc_curves.png`**: Receiver Operating Characteristic curves for each class, showing the trade-off between sensitivity and specificity (AUC scores included).
-*   **`loss_curve.png`**: Plot of Training vs. Validation Loss over epochs.
-*   **`accuracy_curve.png`**: Plot of Training vs. Validation Accuracy over epochs.
-*   **`error_analysis.png`**: Bar chart showing which classes are most frequently misclassified.
-*   **`metrics.txt`**: Text file containing final Accuracy, Weighted Precision, Recall, and F1-Score.
-*   **`sample_predictions.txt`**: A log of random sample predictions (Actual vs. Predicted).
+*   **`confusion_matrix.png`**: Misclassification heatmap.
+*   **`roc_curves.png`**: ROC curves per class with AUC.
+*   **`pr_curves.png`**: Precision-Recall curves per class with AUC.
+*   **`loss_curve.png`**, **`accuracy_curve.png`**: Training vs Validation over epochs (from history).
+*   **`error_analysis.png`**: Misclassified counts per class.
+*   **`metrics.txt`**: Weighted + per-class metrics.
+*   **`sample_predictions.txt`**: Random sample predictions.
+
+## 4. Inference
+Use `predict.py` for single-video inference:
+```bash
+python predict.py --video /path/to/video.avi --checkpoint model_checkpoint.pth --classes Normal Violent Panic
+```
+
+## 5. Notes and Recommendations
+*   **Panic data quality**: Replace the Avenue proxy with real panic/evacuation clips or labeled abnormal clips from Avenue for higher fidelity.
+*   **Large artifacts**: `model_checkpoint.pth` (~105 MB) exceeds GitHub’s standard limit—use Git LFS or export a smaller ONNX/quantized model for sharing.
+*   **Reproducibility**: Seeds are set (Python/NumPy/Torch) and cuDNN deterministic mode is enabled.
 
 ## 4. Performance Analysis
 *   **Accuracy**: Overall correctness of the model.

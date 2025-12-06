@@ -24,8 +24,6 @@ Avenue Dataset/
 Avenue_Dataset.zip
 Violent flow/
 *.pth
-docs/*.png
-docs/*.txt
 terminals/
 .cursor/
 
