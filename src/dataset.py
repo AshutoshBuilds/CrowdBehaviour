@@ -80,20 +80,29 @@ class CrowdBehaviorDataset(Dataset):
         # Apply consistent augmentations per sequence if enabled.
         if self.apply_augmentations:
             flip = random.random() < 0.5
-            jitter = T.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.05)
-            jitter_fn = jitter.get_params(jitter.brightness, jitter.contrast, jitter.saturation, jitter.hue)
+            # Sample deterministic jitter params once per clip to keep all frames coherent.
+            brightness = random.uniform(0.8, 1.2)  # 1 ± 0.2
+            contrast = random.uniform(0.8, 1.2)
+            saturation = random.uniform(0.8, 1.2)
+            hue = random.uniform(-0.05, 0.05)
             rotation_deg = random.uniform(-5, 5)
         else:
             flip = False
-            jitter_fn = None
+            brightness = contrast = saturation = hue = None
             rotation_deg = 0.0
 
         processed_frames = []
         for frame in frames:
             if flip:
                 frame = torch.flip(frame, dims=[2])  # horizontal flip (W dimension)
-            if jitter_fn:
-                frame = jitter_fn(frame)
+            if brightness is not None:
+                frame = F.adjust_brightness(frame, brightness)
+            if contrast is not None:
+                frame = F.adjust_contrast(frame, contrast)
+            if saturation is not None:
+                frame = F.adjust_saturation(frame, saturation)
+            if hue is not None:
+                frame = F.adjust_hue(frame, hue)
             if rotation_deg != 0.0:
                 frame = F.rotate(frame, rotation_deg, interpolation=InterpolationMode.BILINEAR)
             frame = self.normalizer(frame)
