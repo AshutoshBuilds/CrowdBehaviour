@@ -90,6 +90,7 @@ python predict.py --video /path/to/video.avi --checkpoint model_checkpoint.pth -
 *   **Panic data quality**: Replace the Avenue proxy with real panic/evacuation clips or labeled abnormal clips from Avenue for higher fidelity.
 *   **Large artifacts**: `model_checkpoint.pth` (~105 MB) exceeds GitHub’s standard limit—use Git LFS or export a smaller ONNX/quantized model for sharing.
 *   **Reproducibility**: Seeds are set (Python/NumPy/Torch) and cuDNN deterministic mode is enabled.
+*   **Stability of Panic metrics**: Panic support is currently tiny (val/test ≤ 6 clips); bootstrap CIs are therefore extremely wide despite perfect point metrics. Prefer collecting more Panic clips and/or using stratified k-fold evaluation plus class-weighted loss or targeted augmentation to stabilize estimates.
 
 ## 4. Performance Analysis
 *   **Accuracy**: Overall correctness of the model.

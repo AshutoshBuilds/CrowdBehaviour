@@ -1,9 +1,10 @@
-Accuracy: 0.8393
-Precision (Weighted): 0.8845
-Recall (Weighted): 0.8393
-F1-Score (Weighted): 0.8370
+Accuracy: 1.0000 (95% CI: 1.0000-1.0000)
+Precision (Weighted): 1.0000 (95% CI: 1.0000-1.0000)
+Recall (Weighted): 1.0000 (95% CI: 1.0000-1.0000)
+F1-Score (Weighted): 1.0000 (95% CI: 1.0000-1.0000)
+Loss: 0.1025
 
 Per-class metrics (Precision, Recall, F1, Support):
-Normal: P=0.7188, R=1.0000, F1=0.8364, Support=23
-Violent: P=1.0000, R=0.6786, F1=0.8085, Support=28
-Panic: P=1.0000, R=1.0000, F1=1.0000, Support=5
+Normal: P=1.0000, R=1.0000, F1=1.0000, Support=12 | P 95% CI: 1.0000-1.0000, R 95% CI: 1.0000-1.0000, F1 95% CI: 1.0000-1.0000
+Violent: P=1.0000, R=1.0000, F1=1.0000, Support=14 | P 95% CI: 1.0000-1.0000, R 95% CI: 1.0000-1.0000, F1 95% CI: 1.0000-1.0000
+Panic: P=1.0000, R=1.0000, F1=1.0000, Support=2 | P 95% CI: 0.0000-1.0000, R 95% CI: 0.0000-1.0000, F1 95% CI: 0.0000-1.0000

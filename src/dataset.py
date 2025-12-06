@@ -46,13 +46,11 @@ class CrowdBehaviorDataset(Dataset):
                 print(f"{Fore.YELLOW}Warning: Directory not found for {class_name}: {dir_path}")
                 continue
 
-            # Support avi, mp4, etc. (recursive included)
-            video_files = (
-                glob.glob(os.path.join(dir_path, "*.avi"))
-                + glob.glob(os.path.join(dir_path, "*.mp4"))
-                + glob.glob(os.path.join(dir_path, "**", "*.avi"), recursive=True)
-                + glob.glob(os.path.join(dir_path, "**", "*.mp4"), recursive=True)
-            )
+            # Support avi, mp4, etc. (recursive included) with de-duplication.
+            video_files = set()
+            for pattern in ("*.avi", "*.mp4", os.path.join("**", "*.avi"), os.path.join("**", "*.mp4")):
+                video_files.update(glob.glob(os.path.join(dir_path, pattern), recursive="**" in pattern))
+            video_files = sorted(video_files)
 
             print(f"{Fore.CYAN}Found {len(video_files)} videos for class {class_name}")
 

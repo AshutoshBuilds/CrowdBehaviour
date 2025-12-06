@@ -54,14 +54,14 @@ def _bootstrap_cis(labels, preds, n_classes, iters=200, alpha=0.05, random_state
 
         stats["accuracy"].append(accuracy_score(lbl, prd))
         p_w, r_w, f_w, _ = precision_recall_fscore_support(
-            lbl, prd, average="weighted", zero_division=0
+            lbl, prd, labels=range(n_classes), average="weighted", zero_division=0
         )
         stats["precision_weighted"].append(p_w)
         stats["recall_weighted"].append(r_w)
         stats["f1_weighted"].append(f_w)
 
         p_c, r_c, f_c, _ = precision_recall_fscore_support(
-            lbl, prd, average=None, zero_division=0
+            lbl, prd, labels=range(n_classes), average=None, zero_division=0
         )
         for i in range(n_classes):
             stats["per_class"][i].append((p_c[i], r_c[i], f_c[i]))
@@ -145,12 +145,14 @@ def evaluate_model(
     all_probs = np.array(all_probs)
 
     # Metrics
+    n_classes = len(class_names) if class_names else len(np.unique(all_labels))
+    label_range = list(range(n_classes))
     accuracy = accuracy_score(all_labels, all_preds)
     precision, recall, f1, support = precision_recall_fscore_support(
-        all_labels, all_preds, average="weighted", zero_division=0
+        all_labels, all_preds, labels=label_range, average="weighted", zero_division=0
     )
     per_class = precision_recall_fscore_support(
-        all_labels, all_preds, average=None, zero_division=0
+        all_labels, all_preds, labels=label_range, average=None, zero_division=0
     )
     average_loss = total_loss / max(len(loader), 1)
 
@@ -183,7 +185,7 @@ def evaluate_model(
         os.makedirs(output_dir)
 
     # 1. Confusion Matrix Heatmap
-    cm = confusion_matrix(all_labels, all_preds)
+    cm = confusion_matrix(all_labels, all_preds, labels=label_range)
     plt.figure(figsize=(10, 8))
     sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=class_names, yticklabels=class_names)
     plt.xlabel("Predicted")
