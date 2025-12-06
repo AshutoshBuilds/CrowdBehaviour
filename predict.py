@@ -5,7 +5,7 @@ from colorama import Fore, init
 
 from src.model import CNNLSTM
 from src.dataset import CrowdBehaviorDataset
-from src.utils import extract_frames
+from src.utils import extract_frames, ensure_torch_home
 
 
 init(autoreset=True)
@@ -57,6 +57,9 @@ def main():
     )
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu", help="Device to run inference")
     args = parser.parse_args()
+
+    models_dir = ensure_torch_home()
+    print(f"{Fore.CYAN}Torch model cache directory: {models_dir}")
 
     device = args.device
     if not os.path.exists(args.checkpoint):

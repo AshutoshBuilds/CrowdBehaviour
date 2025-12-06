@@ -11,6 +11,7 @@ from src.dataset import CrowdBehaviorDataset
 from src.model import CNNLSTM
 from src.train import train_model
 from src.evaluate import evaluate_model
+from src.utils import ensure_torch_home
 
 # Initialize colorama
 init(autoreset=True)
@@ -102,7 +103,7 @@ def main():
     parser = argparse.ArgumentParser(description="Train/Evaluate crowd behavior models with backbone comparison.")
     parser.add_argument("--models", nargs="+", default=["resnet50"], help="Backbone models to compare")
     parser.add_argument("--batch-size", type=int, default=4, help="Batch size for training/eval")
-    parser.add_argument("--epochs", type=int, default=15, help="Number of training epochs")
+    parser.add_argument("--epochs", type=int, default=30, help="Number of training epochs")
     parser.add_argument("--learning-rate", type=float, default=1e-4, help="Learning rate")
     parser.add_argument("--sequence-length", type=int, default=16, help="Frames per clip")
     parser.add_argument("--resize", nargs=2, type=int, default=[224, 224], help="Resize (H W) for frames")
@@ -131,6 +132,9 @@ def main():
         help="Disable stratified bootstrap (keeps class proportions) for CI estimation.",
     )
     args = parser.parse_args()
+
+    models_dir = ensure_torch_home()
+    print(f"{Fore.CYAN}Torch model cache directory: {models_dir}")
 
     set_seed(args.seed)
 

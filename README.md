@@ -32,6 +32,7 @@ python main.py --models resnet50 efficientnet_b0 vit_b_16 densenet121 mobilenet_
 - Uses train/val/test splits (seeded), weighted sampler optional, mixed precision on CUDA.
 - Saves per-model artifacts under `docs/val/<model>/` and `docs/test/<model>/` plus checkpoints at `docs/<model>_checkpoint.pth`.
 - Aggregated comparison lives at `docs/benchmarks/summary.csv` (accuracy / precision / recall / F1 / loss).
+- Pretrained backbones download to `./models/` (TORCH_HOME is set automatically) so nothing is cached to the default C: drive path.
 - Flags: `--train-backbone` to fine-tune feature extractors, `--batch-size`, `--epochs`, `--learning-rate`, `--sequence-length`, `--resize H W`, `--output-dir`.
 
 4) **Inference on a Single Video**

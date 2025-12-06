@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torchvision.models as models
+from .utils import ensure_torch_home
 
 
 class BackboneWrapper(nn.Module):
@@ -113,6 +114,7 @@ BACKBONE_BUILDERS = {
 
 
 def build_backbone(name: str, pretrained: bool = True) -> BackboneWrapper:
+    ensure_torch_home()
     key = name.lower()
     if key not in BACKBONE_BUILDERS:
         available = ", ".join(sorted(BACKBONE_BUILDERS.keys()))

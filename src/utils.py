@@ -1,7 +1,24 @@
 import cv2
 import numpy as np
 import os
+from pathlib import Path
 from colorama import Fore
+import torch
+
+
+def ensure_torch_home(models_subdir: str = "models") -> Path:
+    """
+    Force Torch to cache pretrained weights inside the project-local models/
+    directory instead of the default user cache (e.g., C: drive). This keeps
+    downloads self-contained and repeatable across environments.
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    models_dir = project_root / models_subdir
+    models_dir.mkdir(parents=True, exist_ok=True)
+    os.environ["TORCH_HOME"] = str(models_dir)
+    torch.hub.set_dir(str(models_dir))
+    return models_dir
+
 
 def extract_frames(video_path, sequence_length=16, resize=(224, 224)):
     """

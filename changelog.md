@@ -8,3 +8,4 @@ IST 06-Dec-2025 17:45:05 - Deduplicated dataset globbing, re-ran val/test with b
 IST 06-Dec-2025 17:53:27 - Ensured .cursor/mcp.json exists and reused n_classes when deriving resolved class names in evaluation.
 IST 06-Dec-2025 18:17:38 - Hardened eval splits (seed/logging), enabled stratified test-set bootstrap CIs, surfaced split sizes in artifacts, and raised default val/test ratios for better reliability.
 IST 06-Dec-2025 18:27:51 - Guarded dataset label retrieval in build_loaders with get_labels fallback and clearer errors for missing labels.
+IST 06-Dec-2025 18:33:59 - Forced Torch weight downloads into project-root models/ directory (via TORCH_HOME) and documented the new cache location.
