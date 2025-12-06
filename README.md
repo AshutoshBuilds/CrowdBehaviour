@@ -24,12 +24,15 @@ pip install -r requirements.txt
 - `Violent flow/training dataset/violence` → Violent
 - `Avenue Dataset/training_videos` → Panic proxy (optional; pipeline falls back to 2-class if missing)
 
-3) **Train & Evaluate**
+3) **Train & Evaluate (single or multi-backbone)**
 ```bash
-python main.py
+# Compare multiple backbones with optional augmentation
+python main.py --models resnet50 efficientnet_b0 vit_b_16 densenet121 mobilenet_v3_large custom_cnn --augment
 ```
 - Uses train/val/test splits (seeded), weighted sampler optional, mixed precision on CUDA.
-- Saves metrics/plots under `docs/val/` and `docs/test/`.
+- Saves per-model artifacts under `docs/val/<model>/` and `docs/test/<model>/` plus checkpoints at `docs/<model>_checkpoint.pth`.
+- Aggregated comparison lives at `docs/benchmarks/summary.csv` (accuracy / precision / recall / F1 / loss).
+- Flags: `--train-backbone` to fine-tune feature extractors, `--batch-size`, `--epochs`, `--learning-rate`, `--sequence-length`, `--resize H W`, `--output-dir`.
 
 4) **Inference on a Single Video**
 ```bash

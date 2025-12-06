@@ -1,3 +1,5 @@
+import argparse
+import csv
 import os
 import random
 import numpy as np
@@ -56,6 +58,18 @@ def build_loaders(dataset, batch_size, val_split=0.15, test_split=0.15, seed=42,
 def main():
     print(f"{Fore.CYAN}Crowd Behavior Analysis System (Normal, Violent, Panic)")
 
+    parser = argparse.ArgumentParser(description="Train/Evaluate crowd behavior models with backbone comparison.")
+    parser.add_argument("--models", nargs="+", default=["resnet50"], help="Backbone models to compare")
+    parser.add_argument("--batch-size", type=int, default=4, help="Batch size for training/eval")
+    parser.add_argument("--epochs", type=int, default=15, help="Number of training epochs")
+    parser.add_argument("--learning-rate", type=float, default=1e-4, help="Learning rate")
+    parser.add_argument("--sequence-length", type=int, default=16, help="Frames per clip")
+    parser.add_argument("--resize", nargs=2, type=int, default=[224, 224], help="Resize (H W) for frames")
+    parser.add_argument("--train-backbone", action="store_true", help="Unfreeze backbone for fine-tuning")
+    parser.add_argument("--augment", action="store_true", help="Enable data augmentation")
+    parser.add_argument("--output-dir", default="docs", help="Base output directory for artifacts")
+    args = parser.parse_args()
+
     set_seed(42)
 
     # Configuration (can be moved to a config file if needed)
@@ -78,19 +92,29 @@ def main():
         print(f"{Fore.YELLOW}Proceeding with 2 classes: Normal, Violent.")
 
     # Hyperparameters
-    BATCH_SIZE = 4
-    NUM_EPOCHS = 15
-    LEARNING_RATE = 1e-4
-    SEQUENCE_LENGTH = 16
-    RESIZE = (224, 224)
+    BATCH_SIZE = args.batch_size
+    NUM_EPOCHS = args.epochs
+    LEARNING_RATE = args.learning_rate
+    SEQUENCE_LENGTH = args.sequence_length
+    RESIZE = (args.resize[0], args.resize[1])
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
     print(f"{Fore.CYAN}Using device: {DEVICE}")
     print(f"{Fore.CYAN}Training for {NUM_EPOCHS} epochs.")
+    if args.augment:
+        print(f"{Fore.CYAN}Data augmentation enabled.")
+    if args.train_backbone:
+        print(f"{Fore.CYAN}Backbone fine-tuning enabled.")
 
     # Dataset
     print(f"{Fore.CYAN}Loading dataset...")
-    dataset = CrowdBehaviorDataset(root_dirs, sequence_length=SEQUENCE_LENGTH, resize=RESIZE, apply_normalization=True)
+    dataset = CrowdBehaviorDataset(
+        root_dirs,
+        sequence_length=SEQUENCE_LENGTH,
+        resize=RESIZE,
+        apply_normalization=True,
+        apply_augmentations=args.augment,
+    )
 
     if len(dataset) == 0:
         print(f"{Fore.RED}No videos found in the specified directories. Exiting.")
@@ -102,35 +126,104 @@ def main():
 
     # DataLoaders with splits
     loaders = build_loaders(dataset, batch_size=BATCH_SIZE, val_split=0.15, test_split=0.15, seed=42)
-    if not loaders or any(l is None for l in loaders):
+    if loaders is None:
         print(f"{Fore.RED}Unable to create data loaders. Exiting.")
         return
     train_loader, val_loader, test_loader = loaders
 
-    # Model
-    print(f"{Fore.CYAN}Initializing model...")
-    model = CNNLSTM(num_classes=num_classes)
+    os.makedirs(args.output_dir, exist_ok=True)
+    benchmarks_dir = os.path.join(args.output_dir, "benchmarks")
+    os.makedirs(benchmarks_dir, exist_ok=True)
+    summary_rows = []
 
-    # Train
-    print(f"{Fore.CYAN}Starting training...")
-    trained_model, history = train_model(
-        model,
-        train_loader,
-        val_loader,
-        num_epochs=NUM_EPOCHS,
-        learning_rate=LEARNING_RATE,
-        device=DEVICE,
-        save_path="model_checkpoint.pth",
-        use_amp=True,
-    )
+    for model_name in args.models:
+        print(f"{Fore.CYAN}Initializing model backbone: {model_name}")
+        model = CNNLSTM(
+            num_classes=num_classes,
+            backbone=model_name,
+            train_backbone=args.train_backbone,
+            pretrained_backbone=True,
+        )
 
-    if trained_model:
-        # Evaluate on validation/test
-        print(f"{Fore.CYAN}Evaluating on validation set...")
-        evaluate_model(trained_model, val_loader, history=history, device=DEVICE, class_names=class_names, output_dir="docs/val")
+        checkpoint_path = os.path.join(args.output_dir, f"{model_name}_checkpoint.pth")
 
-        print(f"{Fore.CYAN}Evaluating on test set...")
-        evaluate_model(trained_model, test_loader, history=None, device=DEVICE, class_names=class_names, output_dir="docs/test")
+        # Train
+        print(f"{Fore.CYAN}Starting training for {model_name}...")
+        trained_model, history, best_metrics = train_model(
+            model,
+            train_loader,
+            val_loader,
+            num_epochs=NUM_EPOCHS,
+            learning_rate=LEARNING_RATE,
+            device=DEVICE,
+            save_path=checkpoint_path,
+            use_amp=True,
+        )
+
+        if trained_model is None:
+            continue
+
+        # Reload best checkpoint before evaluation to ensure best weights are used.
+        if os.path.exists(checkpoint_path):
+            trained_model.load_state_dict(torch.load(checkpoint_path, map_location=DEVICE))
+
+        # Evaluate on validation/test with per-model subfolders
+        val_dir = os.path.join(args.output_dir, "val", model_name)
+        test_dir = os.path.join(args.output_dir, "test", model_name)
+
+        print(f"{Fore.CYAN}Evaluating {model_name} on validation set...")
+        val_metrics = evaluate_model(
+            trained_model,
+            val_loader,
+            history=history,
+            device=DEVICE,
+            class_names=class_names,
+            output_dir=val_dir,
+        )
+
+        print(f"{Fore.CYAN}Evaluating {model_name} on test set...")
+        test_metrics = evaluate_model(
+            trained_model,
+            test_loader,
+            history=None,
+            device=DEVICE,
+            class_names=class_names,
+            output_dir=test_dir,
+        )
+
+        if val_metrics:
+            summary_rows.append(
+                {
+                    "model": model_name,
+                    "split": "val",
+                    "accuracy": val_metrics["accuracy"],
+                    "precision_weighted": val_metrics["precision_weighted"],
+                    "recall_weighted": val_metrics["recall_weighted"],
+                    "f1_weighted": val_metrics["f1_weighted"],
+                    "loss": val_metrics["loss"],
+                }
+            )
+        if test_metrics:
+            summary_rows.append(
+                {
+                    "model": model_name,
+                    "split": "test",
+                    "accuracy": test_metrics["accuracy"],
+                    "precision_weighted": test_metrics["precision_weighted"],
+                    "recall_weighted": test_metrics["recall_weighted"],
+                    "f1_weighted": test_metrics["f1_weighted"],
+                    "loss": test_metrics["loss"],
+                }
+            )
+
+    if summary_rows:
+        summary_path = os.path.join(benchmarks_dir, "summary.csv")
+        with open(summary_path, "w", newline="") as csvfile:
+            fieldnames = ["model", "split", "accuracy", "precision_weighted", "recall_weighted", "f1_weighted", "loss"]
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(summary_rows)
+        print(f"{Fore.GREEN}Benchmark summary saved to {summary_path}")
 
 
 if __name__ == "__main__":

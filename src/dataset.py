@@ -1,9 +1,12 @@
 import glob
 import os
+import random
 import torch
 from torch.utils.data import Dataset
 from colorama import Fore
 import torchvision.transforms as T
+import torchvision.transforms.functional as F
+from torchvision.transforms import InterpolationMode
 from .utils import extract_frames
 
 
@@ -14,6 +17,7 @@ class CrowdBehaviorDataset(Dataset):
         sequence_length=16,
         resize=(224, 224),
         apply_normalization=True,
+        apply_augmentations=False,
     ):
         """
         root_dirs: dict mapping class names to directory paths.
@@ -24,19 +28,18 @@ class CrowdBehaviorDataset(Dataset):
         self.class_map = {name: i for i, name in enumerate(root_dirs.keys())}
         self.sequence_length = sequence_length
         self.resize = resize
+        self.apply_augmentations = apply_augmentations
 
-        self.transform = None
+        # ImageNet normalization aligns with pretrained backbones.
+        base_transforms = [T.ConvertImageDtype(torch.float)]
         if apply_normalization:
-            # ImageNet normalization aligns with ResNet50 pretraining.
-            self.transform = T.Compose(
-                [
-                    T.ConvertImageDtype(torch.float),
-                    T.Normalize(
-                        mean=[0.485, 0.456, 0.406],
-                        std=[0.229, 0.224, 0.225],
-                    ),
-                ]
+            base_transforms.append(
+                T.Normalize(
+                    mean=[0.485, 0.456, 0.406],
+                    std=[0.229, 0.224, 0.225],
+                )
             )
+        self.normalizer = T.Compose(base_transforms)
 
         for class_name, dir_path in root_dirs.items():
             if not os.path.exists(dir_path):
@@ -74,9 +77,29 @@ class CrowdBehaviorDataset(Dataset):
             frames = torch.FloatTensor(frames) / 255.0
             frames = frames.permute(0, 3, 1, 2)
 
-        if self.transform:
-            # Apply per-frame normalization
-            frames = self.transform(frames)
+        # Apply consistent augmentations per sequence if enabled.
+        if self.apply_augmentations:
+            flip = random.random() < 0.5
+            jitter = T.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.05)
+            jitter_fn = jitter.get_params(jitter.brightness, jitter.contrast, jitter.saturation, jitter.hue)
+            rotation_deg = random.uniform(-5, 5)
+        else:
+            flip = False
+            jitter_fn = None
+            rotation_deg = 0.0
+
+        processed_frames = []
+        for frame in frames:
+            if flip:
+                frame = torch.flip(frame, dims=[2])  # horizontal flip (W dimension)
+            if jitter_fn:
+                frame = jitter_fn(frame)
+            if rotation_deg != 0.0:
+                frame = F.rotate(frame, rotation_deg, interpolation=InterpolationMode.BILINEAR)
+            frame = self.normalizer(frame)
+            processed_frames.append(frame)
+
+        frames = torch.stack(processed_frames)
 
         return frames, label
 

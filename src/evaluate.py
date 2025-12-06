@@ -26,7 +26,7 @@ def evaluate_model(
 ):
     if len(loader.dataset) == 0:
         print(f"{Fore.RED}Dataset is empty. Cannot evaluate.")
-        return
+        return None
 
     model.eval()
     model.to(device)
@@ -34,16 +34,21 @@ def evaluate_model(
     all_preds = []
     all_labels = []
     all_probs = []
+    total_loss = 0.0
+    criterion = torch.nn.CrossEntropyLoss()
 
     print(f"{Fore.CYAN}Starting evaluation...")
 
     with torch.no_grad():
         for inputs, labels in loader:
             inputs = inputs.to(device)
+            labels_device = labels.to(device)
             outputs = model(inputs)
             probs = torch.softmax(outputs, dim=1)
+            loss = criterion(outputs, labels_device)
             _, predicted = torch.max(outputs.data, 1)
 
+            total_loss += loss.item()
             all_preds.extend(predicted.cpu().numpy())
             all_labels.extend(labels.numpy())
             all_probs.extend(probs.cpu().numpy())
@@ -58,12 +63,14 @@ def evaluate_model(
     per_class = precision_recall_fscore_support(
         all_labels, all_preds, average=None, zero_division=0
     )
+    average_loss = total_loss / max(len(loader), 1)
 
     print(f"{Fore.GREEN}Evaluation Results:")
     print(f"Accuracy: {accuracy:.4f}")
     print(f"Precision (Weighted): {precision:.4f}")
     print(f"Recall (Weighted): {recall:.4f}")
     print(f"F1-Score (Weighted): {f1:.4f}")
+    print(f"Loss: {average_loss:.4f}")
 
     # Visualizations
     if not os.path.exists(output_dir):
@@ -187,6 +194,7 @@ def evaluate_model(
         f.write(f"Precision (Weighted): {precision:.4f}\n")
         f.write(f"Recall (Weighted): {recall:.4f}\n")
         f.write(f"F1-Score (Weighted): {f1:.4f}\n")
+        f.write(f"Loss: {average_loss:.4f}\n")
         if class_names:
             f.write("\nPer-class metrics (Precision, Recall, F1, Support):\n")
             for i, cls in enumerate(class_names):
@@ -194,3 +202,13 @@ def evaluate_model(
                     f"{cls}: P={per_class[0][i]:.4f}, R={per_class[1][i]:.4f}, "
                     f"F1={per_class[2][i]:.4f}, Support={per_class[3][i]}\n"
                 )
+
+    results = {
+        "accuracy": accuracy,
+        "precision_weighted": precision,
+        "recall_weighted": recall,
+        "f1_weighted": f1,
+        "loss": average_loss,
+        "per_class": per_class,
+    }
+    return results
