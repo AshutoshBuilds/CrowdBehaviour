@@ -27,6 +27,10 @@ def predict_video(model, video_path, device, sequence_length=16, resize=(224, 22
         return None
     frames = torch.FloatTensor(frames) / 255.0
     frames = frames.permute(0, 3, 1, 2)  # (T, C, H, W)
+    # Apply ImageNet normalization to match training
+    mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 1, 3, 1, 1)
+    std = torch.tensor([0.229, 0.224, 0.225]).view(1, 1, 3, 1, 1)
+    frames = (frames - mean) / std
     # Single batch
     frames = frames.unsqueeze(0).to(device)
 

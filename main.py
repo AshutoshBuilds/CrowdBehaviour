@@ -102,7 +102,7 @@ def main():
 
     # DataLoaders with splits
     loaders = build_loaders(dataset, batch_size=BATCH_SIZE, val_split=0.15, test_split=0.15, seed=42)
-    if loaders is None:
+    if not loaders or any(l is None for l in loaders):
         print(f"{Fore.RED}Unable to create data loaders. Exiting.")
         return
     train_loader, val_loader, test_loader = loaders
